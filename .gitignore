@@ -1,0 +1,33 @@
+# Dependencias y entornos virtuales
+node_modules/
+.venv-backend/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Compilación de frontend
+dist/
+build/
+
+# Variables de entorno locales
+.env
+.env.local
+
+# Modelos de IA y binarios descargables (se instalan con Instalar-IA.cmd)
+backend/modelos/
+backend/vendor/
+
+# Base de datos local y archivos temporales de procesamiento
+backend/data/*.sqlite3
+backend/data/*.sqlite3-shm
+backend/data/*.sqlite3-wal
+backend/data/trabajos-temporales/
+
+# Respaldos y archivos auxiliares de desarrollo
+*.bak*
+artifacts/
+backups/
+Traductor-Final-main/
+frontend-codigo.txt
+frontend-para-integrar.zip

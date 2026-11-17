@@ -1,0 +1,37 @@
+{
+  "audio": "samples/reunion-controlada.wav",
+  "tipo_audio": "voz sintética, Microsoft Zira",
+  "motor_voz": "Whisper real",
+  "motor_texto": "Qwen local real",
+  "duracion_real": 30.6,
+  "transcripcion_real": "Hoy Rivas Amos el proyecto Carlos preparara la presentación para el viernes Mariano revisara la interfaz Juan José redactora la documentation Carlos enviara el inform Alguien de Beria revisar el presupuesto Carlos cuira aprender italiano Acordamos user SQ Lite Gracias.",
+  "resumen_general": "Carlos preparara la presentación para el viernes. Mariano revisara la interfaz. Juan José redactora la documentation.",
+  "pendientes": [
+    {
+      "id": "405932f3-30d0-4df0-b7ce-9ab45de0910e",
+      "meeting_id": "2c8d8c52-b27f-459a-9c4d-e41dc88d5fc2",
+      "descripcion": "preparar la presentación",
+      "responsable": "Carlos",
+      "fecha_limite": "viernes",
+      "evidencia": "Hoy Rivas Amos el proyecto Carlos preparara la presentación para el viernes",
+      "inicio": 0.0,
+      "fin": 7.18,
+      "nota": "",
+      "estado": "pendiente",
+      "version": 0,
+      "updated_at": "2026-11-17T20:31:07.069997+00:00",
+      "evidencias": [
+        {
+          "texto": "Hoy Rivas Amos el proyecto Carlos preparara la presentación para el viernes",
+          "inicio": 0.0,
+          "fin": 7.18
+        }
+      ],
+      "origen": "ia"
+    }
+  ],
+  "por_confirmar": [],
+  "nota_y_estado_recuperados": true,
+  "cancelacion_proceso_real": true,
+  "segundos": 42.06
+}

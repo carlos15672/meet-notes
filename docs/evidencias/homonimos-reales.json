@@ -1,0 +1,87 @@
+{
+  "texto": "Participan Carlos Pérez y Carlos López. Carlos preparará la presentación. Alguien debería revisar el presupuesto. Acordamos usar SQLite.",
+  "idioma": "es",
+  "duracion_segundos": 20,
+  "segmentos": [],
+  "modelo": "texto-controlado",
+  "id": "d6c9f8ca-28e1-4f00-a774-e6d0bacc2674",
+  "title": "Homónimos",
+  "userName": "Carlos",
+  "fileName": "texto-controlado",
+  "created_at": "2026-11-17T20:34:04.099361+00:00",
+  "updated_at": "2026-11-17T20:34:04.112929+00:00",
+  "analysis_status": "listo",
+  "analysis_token": "",
+  "analysis_error": "",
+  "progress": 100,
+  "resumen": {
+    "temas": [
+      "preparación de la presentación",
+      "revisión del presupuesto",
+      "uso de SQLite"
+    ],
+    "acuerdos": [
+      "Acordamos usar SQLite."
+    ],
+    "conclusiones": []
+  },
+  "evidencias_resumen": {
+    "temas": [
+      "Carlos preparará la presentación",
+      "Alguien debería revisar el presupuesto",
+      "Acordamos usar SQLite"
+    ],
+    "acuerdos": [
+      "Acordamos usar SQLite."
+    ],
+    "conclusiones": []
+  },
+  "analysis_model": "qwen2.5-1.5b-instruct-q4_k_m",
+  "advertencias": [
+    "Se omitieron 1 propuestas de pendientes sin una cita verificable y una asignación a tu nombre."
+  ],
+  "resumen_general": "Carlos preparará la presentación. Alguien debería revisar el presupuesto. Acordamos usar SQLite.",
+  "por_confirmar": [
+    {
+      "id": "488c703e-90bc-49c6-bc00-5f0b47304c87",
+      "meeting_id": "d6c9f8ca-28e1-4f00-a774-e6d0bacc2674",
+      "descripcion": "revisar el presupuesto",
+      "responsable": null,
+      "fecha_limite": null,
+      "evidencia": "Alguien debería revisar el presupuesto.",
+      "inicio": null,
+      "fin": null,
+      "motivo": "Se mencionó una tarea sin asignarla a una persona.",
+      "opciones": [
+        "Carlos López",
+        "Carlos Pérez"
+      ],
+      "estado": "pendiente",
+      "version": 0
+    }
+  ],
+  "pendientes": [
+    {
+      "id": "8108cc97-c772-437c-8068-f4118ffea729",
+      "meeting_id": "d6c9f8ca-28e1-4f00-a774-e6d0bacc2674",
+      "descripcion": "preparar la presentación",
+      "responsable": "Carlos Pérez",
+      "fecha_limite": null,
+      "evidencia": "Carlos preparará la presentación",
+      "inicio": null,
+      "fin": null,
+      "nota": "",
+      "estado": "pendiente",
+      "version": 0,
+      "updated_at": "2026-11-17T20:34:04.142417+00:00",
+      "evidencias": [
+        {
+          "texto": "Carlos preparará la presentación",
+          "inicio": null,
+          "fin": null
+        }
+      ],
+      "origen": "usuario"
+    }
+  ]
+}

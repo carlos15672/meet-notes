@@ -1,0 +1,29 @@
+Guion de validación de meet-notes
+
+Grabación sintética incluida: samples/reunion-controlada.wav (Microsoft Zira, una voz).
+La voz instalada es inglesa: esta muestra comprueba el recorrido técnico y no mide la precisión de Whisper con voces españolas naturales.
+Nombre de la prueba principal: Carlos.
+
+Hoy revisamos el proyecto. Carlos preparará la presentación para el viernes.
+Mariana revisará la interfaz. Juan José redactará la documentación.
+Carlos enviará el informe. Alguien debería revisar el presupuesto.
+Carlos quiere aprender italiano. Acordamos usar SQLite.
+
+Resultados esperados del guion limpio:
+- Presentación e informe corresponden a Carlos.
+- Interfaz y documentación pertenecen a otras personas.
+- El presupuesto queda por confirmar, sin atribución automática.
+- El deseo de aprender italiano no es una tarea.
+- El viernes solo es fecha de la presentación.
+
+Variación para homónimos:
+Participan Carlos Pérez y Carlos López. Carlos preparará la presentación.
+Si se introduce solo Carlos, se debe pedir confirmación del nombre.
+
+Variación para repeticiones:
+Carlos enviará el informe. Carlos remitirá el informe.
+Se espera una tarea con las dos citas cuando la extracción produzca ambas menciones.
+
+Recorrido técnico:
+Subir audio → esperar resultados → escribir nota → esperar Guardado → cambiar estado → recuperar la reunión en una conexión nueva.
+Probar también confirmar y descartar propuestas, cancelar un trabajo real y recuperar borradores tras un error.
