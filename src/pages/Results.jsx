@@ -104,11 +104,11 @@ export default function Results({ meeting, loading, loadError, onRefresh, onRetr
         : id === "summary" ? <div className="summary-content">
           <section className="summary-section"><h2>Resumen general</h2><p className="overview-text">{meeting.resumen_general || "Esta reunión se procesó con una versión anterior. Sus temas y acuerdos están disponibles abajo."}</p></section>
           {meeting.proximas_reuniones?.length > 0 && <section className="summary-section"><h2>Próxima reunión</h2><ul>{meeting.proximas_reuniones.map((text, i) => <li key={i}>{text}</li>)}</ul></section>}
-          {[["temas", "Temas tratados"], ["acuerdos", "Acuerdos"], ["conclusiones", "Conclusiones"]].map(([key, label]) => <section key={key} className="summary-section"><h2>{label}</h2>
+          {[["temas", "Temas tratados"], ["acuerdos", "Acuerdos"]].map(([key, label]) => <section key={key} className="summary-section"><h2>{label}</h2>
             {meeting.resumen[key].length ? <ul>{meeting.resumen[key].map((text, i) => <li key={i}>{text}
               {meeting.evidencias_resumen?.[key]?.[i] && meeting.evidencias_resumen[key][i] !== text &&
                 <details className="task-evidence"><summary>Ver evidencia</summary><blockquote>{meeting.evidencias_resumen[key][i]}</blockquote></details>}
-            </li>)}</ul> : <p className="muted">{({ temas: "No se pudieron identificar los temas de esta reunión.", acuerdos: "No se encontraron acuerdos explícitos.", conclusiones: "No se identificaron conclusiones." })[key]}</p>}
+            </li>)}</ul> : <p className="muted">{({ temas: "No se pudieron identificar los temas de esta reunión.", acuerdos: "No se encontraron acuerdos explícitos." })[key]}</p>}
           </section>)}
         </div> : <div className="tasks-content">
           <div className="transcript-heading"><div><h2>Mis pendientes</h2><p className="help">Para {meeting.userName}{meeting.pendientes.length > 0 && <> · {meeting.pendientes.filter(task => task.estado === "completado").length} de {meeting.pendientes.length} tareas completadas</>}</p></div></div>
