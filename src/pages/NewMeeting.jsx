@@ -30,7 +30,7 @@ export default function NewMeeting({ draft, onChange, onProcess, processing, onC
           <legend className="sr-only">Datos y audio de la reunión</legend>
           <div className="section-heading">
             <span className="step-number" aria-hidden="true">1</span>
-            <div><h2 id="meeting-form-title">Datos de la reunión</h2><p className="help">El título es opcional.</p></div>
+            <div><h2 id="meeting-form-title">Datos de la reunión</h2></div>
           </div>
           <div className="form-columns">
             <div className="field">
