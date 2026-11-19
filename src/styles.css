@@ -231,12 +231,12 @@ audio { display: block; width: 100%; margin: 16px 0 10px; }
 
 .summary-content { display: grid; gap: 0; padding: 8px 30px 24px; }
 .summary-section { display: grid; gap: 16px; padding: 24px 0; border-bottom: 1px solid var(--divider); }
+.summary-section:last-child { border-bottom: 0; padding-bottom: 8px; }
 .summary-section h2 { font-size: .9375rem; }
 .summary-section ul { margin: 0; padding-left: 20px; display: grid; gap: 14px; font-size: .9375rem; line-height: 1.8; }
 .summary-section li { padding-left: 6px; }
 .summary-section li::marker { color: #2563eb; font-size: .8rem; }
 .summary-section .muted { font-size: .875rem; }
-.summary-footnote { color: #475569; font-size: .75rem; line-height: 1.7; padding-top: 20px; }
 .overview-text { font-size: .9375rem; line-height: 1.9; max-width: 80ch; }
 
 .tasks-content { padding: 28px; display: grid; gap: 24px; }

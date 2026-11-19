@@ -1,9 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { Copy, FileText, ListTodo, PencilLine, RefreshCw, Sparkles } from "lucide-react";
+import { Copy, FileText, ListTodo, RefreshCw, Sparkles } from "lucide-react";
 import { EmptyState, PageHeading } from "../components/UI.jsx";
 import ProposalCard from "../components/ProposalCard.jsx";
 import TaskCard from "../components/TaskCard.jsx";
-import { MAX_TRANSCRIPT_LENGTH } from "../lib/transcriptReview.js";
 
 const sections = [
   { id: "summary", label: "Resumen", icon: Sparkles },
@@ -14,16 +13,11 @@ function timestamp(seconds) {
   const value = Math.floor(seconds);
   return String(Math.floor(value / 60)).padStart(2, "0") + ":" + String(value % 60).padStart(2, "0");
 }
-export default function Results({ meeting, loading, loadError, onRefresh, onRetry, onReview, noteDrafts, onNoteChange, onSaveTask, saveStates = {}, onResolve, onCancel }) {
+export default function Results({ meeting, loading, loadError, onRefresh, onRetry, noteDrafts, onNoteChange, onSaveTask, saveStates = {}, onResolve, onCancel }) {
   const [active, setActive] = useState(0);
   const [copyMessage, setCopyMessage] = useState("");
   const [retrying, setRetrying] = useState(false);
   const [actionError, setActionError] = useState("");
-  const [editing, setEditing] = useState(false);
-  const [editedText, setEditedText] = useState("");
-  const reviewId = useRef("");
-  const reviewButton = useRef(null);
-  const wasEditing = useRef(false);
   const touched = useRef(false);
   const tabs = useRef([]);
   const textRef = useRef(null);
@@ -34,11 +28,6 @@ export default function Results({ meeting, loading, loadError, onRefresh, onRetr
     if (!touched.current) setActive(ready ? 0 : 2);
     setCopyMessage("");
   }, [meeting?.id, ready]);
-  useEffect(() => {
-    if (editing) textRef.current?.focus();
-    else if (wasEditing.current) reviewButton.current?.focus();
-    wasEditing.current = editing;
-  }, [editing]);
   function choose(index) { touched.current = true; setActive(index); }
   function handleKey(event, index) {
     let next;
@@ -50,7 +39,7 @@ export default function Results({ meeting, loading, loadError, onRefresh, onRetr
     event.preventDefault(); choose(next); tabs.current[next]?.focus();
   }
   async function copyText() {
-    try { await navigator.clipboard.writeText(editing ? editedText : meeting.texto); setCopyMessage("Transcripción copiada."); }
+    try { await navigator.clipboard.writeText(meeting.texto); setCopyMessage("Transcripción copiada."); }
     catch {
       textRef.current?.focus(); textRef.current?.select();
       setCopyMessage("Texto seleccionado. Haz clic derecho y elige Copiar.");
@@ -103,20 +92,14 @@ export default function Results({ meeting, loading, loadError, onRefresh, onRetr
         aria-labelledby={prefix + "-tab-" + id} hidden={active !== index} tabIndex={0} className="result-panel">
         {id === "transcript" ? <div className="transcript-content">
           <div className="transcript-heading"><div><h2>Transcripción completa</h2><p className="help file-name">Duración: {timestamp(meeting.duracion_segundos)}</p></div>
-            <div className="transcript-actions">{!editing && <button ref={reviewButton} type="button" className="button secondary" disabled={analyzing || retrying} onClick={() => { setEditedText(meeting.texto); setEditing(true); reviewId.current = crypto.randomUUID(); setActionError(""); }}><PencilLine size={18} aria-hidden="true" />Revisar texto</button>}
+            <div className="transcript-actions">
             <button type="button" className="button secondary" onClick={copyText}><Copy size={18} aria-hidden="true" />Copiar texto</button></div></div>
-          {meeting.revision_manual && <p className="help">Texto revisado. La transcripción y los resultados anteriores siguen en su reunión original del historial.</p>}
-          {editing && <p className="integration-notice" id={prefix + "-review-help"}>Corrige las palabras que no coincidan con el audio. Se guardará una versión nueva y se generarán sus resultados. La reunión actual y sus notas se conservarán.</p>}
           <label htmlFor={prefix + "-text"} className="sr-only">Texto completo de la transcripción</label>
-          <textarea id={prefix + "-text"} className="transcript-text" ref={textRef} value={editing ? editedText : meeting.texto} readOnly={!editing} disabled={retrying} maxLength={MAX_TRANSCRIPT_LENGTH} rows={8}
-            aria-describedby={editing ? prefix + "-review-help" : undefined} onChange={event => { setEditedText(event.target.value); reviewId.current = crypto.randomUUID(); }} />
-          {editing && <div className="transcript-actions"><button type="button" className="button primary" disabled={retrying || !editedText.trim() || editedText.trim() === meeting.texto.trim()}
-            onClick={() => action(() => onReview(meeting, editedText, reviewId.current))}>{retrying ? "Guardando versión…" : "Guardar versión y analizar"}</button><button type="button" className="button secondary" disabled={retrying} onClick={() => { setEditing(false); setActionError(""); }}>Cancelar revisión</button></div>}
+          <textarea id={prefix + "-text"} className="transcript-text" ref={textRef} value={meeting.texto} readOnly rows={8} />
           <p className="help" role="status" aria-live="polite">{copyMessage}</p>
           {meeting.segmentos.length > 0 && <details className="transcript-segments"><summary>Ver fragmentos con su hora</summary>
             <ol>{meeting.segmentos.map((segment, i) => <li key={i}><span className="segment-time">{timestamp(segment.inicio)} - {timestamp(segment.fin)}</span><p>{segment.texto}</p></li>)}</ol>
           </details>}
-          {meeting.revision_manual && <p className="help">Las citas del texto revisado se muestran sin marcas de tiempo. Puedes consultar los tiempos en la reunión original.</p>}
         </div> : !ready ? <EmptyState icon={icon} title={analyzing ? "Estamos analizando tu reunión" : "El análisis todavía no está listo"}><p>{analyzing ? "El resultado aparecerá aquí cuando termine. Mientras tanto puedes consultar la transcripción." : "Usa el botón de análisis que aparece arriba para continuar."}</p></EmptyState>
         : id === "summary" ? <div className="summary-content">
           <section className="summary-section"><h2>Resumen general</h2><p className="overview-text">{meeting.resumen_general || "Esta reunión se procesó con una versión anterior. Sus temas y acuerdos están disponibles abajo."}</p></section>
@@ -127,7 +110,6 @@ export default function Results({ meeting, loading, loadError, onRefresh, onRetr
                 <details className="task-evidence"><summary>Ver evidencia</summary><blockquote>{meeting.evidencias_resumen[key][i]}</blockquote></details>}
             </li>)}</ul> : <p className="muted">{({ temas: "No se pudieron identificar los temas de esta reunión.", acuerdos: "No se encontraron acuerdos explícitos.", conclusiones: "No se identificaron conclusiones." })[key]}</p>}
           </section>)}
-          <p className="summary-footnote">El resumen se genera a partir del audio. Consulta las citas o la transcripción para revisar un detalle.</p>
         </div> : <div className="tasks-content">
           <div className="transcript-heading"><div><h2>Mis pendientes</h2><p className="help">Para {meeting.userName}{meeting.pendientes.length > 0 && <> · {meeting.pendientes.filter(task => task.estado === "completado").length} de {meeting.pendientes.length} tareas completadas</>}</p></div></div>
           {meeting.advertencias.map((warning, i) => <p className="help" key={i}>{warning}</p>)}
