@@ -11,9 +11,9 @@
     "dev": "vite",
     "build": "vite build",
     "test": "node --test src/lib/validation.test.js src/services/api.test.js src/lib/noteSaving.test.js src/lib/transcriptReview.test.js",
-    "test:backend": ".venv-backend/Scripts/python.exe -m unittest discover -s backend/tests -v",
-    "start": ".venv-backend/Scripts/python.exe -u scripts/run.py",
-    "setup:ai": ".venv-backend/Scripts/python.exe -u scripts/setup_ai.py"
+    "test:backend": "\".\\.venv-backend\\Scripts\\python.exe\" -m unittest discover -s backend/tests -v",
+    "start": "\".\\.venv-backend\\Scripts\\python.exe\" -u scripts/run.py",
+    "setup:ai": "\".\\.venv-backend\\Scripts\\python.exe\" -u scripts/setup_ai.py"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",

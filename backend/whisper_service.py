@@ -60,97 +60,46 @@ class TranscriptionBusyError(RuntimeError):
 
 
 def transcribir_audio(path: Path) -> dict:
-    global _model, _model_label
-
-    if not _processing_lock.acquire(blocking=False):
-        raise TranscriptionBusyError(
-            "Ya se esta procesando un audio. Espera a que termine."
-        )
-
     try:
-        try:
-            with av.open(str(path), mode="r", metadata_errors="ignore") as container:
-                if not container.streams.audio:
-                    raise InvalidAudioError(
-                        "El archivo no contiene una pista de audio. Elige una grabación con sonido."
-                    )
-            samples = decode_audio(str(path), sampling_rate=16000)
-        except InvalidAudioError:
-            raise
-        except Exception as exc:
-            raise InvalidAudioError(
-                "No se pudo leer el audio. Prueba otra grabacion."
-            ) from exc
+        with av.open(str(path), mode="r", metadata_errors="ignore") as container:
+            if not container.streams.audio:
+                raise InvalidAudioError("El archivo no contiene una pista de audio. Elige una grabación con sonido.")
+        samples = decode_audio(str(path), sampling_rate=16000)
+    except InvalidAudioError:
+        raise
+    except Exception as exc:
+        raise InvalidAudioError("No se pudo leer el audio. Prueba otra grabacion.") from exc
+    duration = len(samples) / 16000
+    if duration <= 0:
+        raise InvalidAudioError("El archivo no contiene audio.")
+    if duration > MAX_DURATION_SECONDS:
+        raise InvalidAudioError("El audio supera el limite de 45 minutos.")
+    segments, language, model = transcribe_samples(samples)
+    if not segments:
+        raise InvalidAudioError("No se reconocio voz. Prueba un audio con habla clara.")
+    return {"texto": " ".join(item["texto"] for item in segments), "idioma": language,
+            "duracion_segundos": round(duration, 2), "segmentos": segments, "modelo": model}
 
-        duration = len(samples) / 16000
 
-        if duration <= 0:
-            raise InvalidAudioError("El archivo no contiene audio.")
-
-        if duration > MAX_DURATION_SECONDS:
-            raise InvalidAudioError(
-                "El audio supera el limite de 45 minutos."
-            )
-
+def transcribe_samples(samples):
+    """Transcribe 16 kHz mono samples; reusable by file and live sessions."""
+    global _model, _model_label
+    if not _processing_lock.acquire(blocking=False):
+        raise TranscriptionBusyError("Ya se esta procesando un audio. Espera a que termine.")
+    try:
         if _model is None:
             model_source, model_label = seleccionar_modelo()
-            logger.info(
-                "Preparando Whisper %s en CPU. Se reutilizan pesos locales cuando existen.",
-                model_label,
-            )
+            logger.info("Preparando Whisper %s en CPU.", model_label)
             try:
-                _model = WhisperModel(
-                    model_source,
-                    device="cpu",
-                    compute_type="int8",
-                    cpu_threads=4,
-                    download_root=str(
-                        Path(__file__).resolve().parent / "modelos"
-                    ),
-                )
+                _model = WhisperModel(model_source, device="cpu", compute_type="int8", cpu_threads=4,
+                    download_root=str(Path(__file__).resolve().parent / "modelos"))
                 _model_label = model_label
             except Exception as exc:
-                raise ModelUnavailableError(
-                    "No se pudo cargar Whisper. Revisa la terminal del backend."
-                ) from exc
-
-        logger.info("Transcribiendo audio en CPU.")
-
-        generated_segments, info = _model.transcribe(
-            samples,
-            language="es",
-            task="transcribe",
-            beam_size=5,
-            vad_filter=True,
-            condition_on_previous_text=False,
-        )
-
-        segments = [
-            {
-                "inicio": round(segment.start, 2),
-                "fin": round(segment.end, 2),
-                "texto": segment.text.strip(),
-            }
-            for segment in generated_segments
-            if segment.text.strip()
-        ]
-
-        text = " ".join(segment["texto"] for segment in segments)
-
-        if not text:
-            raise InvalidAudioError(
-                "No se reconocio voz. Prueba un audio con habla clara."
-            )
-
-        logger.info("Transcripcion completada.")
-
-        return {
-            "texto": text,
-            "idioma": info.language,
-            "duracion_segundos": round(duration, 2),
-            "segmentos": segments,
-            "modelo": _model_label,
-        }
-
+                raise ModelUnavailableError("No se pudo cargar Whisper. Revisa la terminal del backend.") from exc
+        generated, info = _model.transcribe(samples, language="es", task="transcribe", beam_size=5,
+            vad_filter=True, condition_on_previous_text=False)
+        segments = [{"inicio": round(segment.start, 2), "fin": round(segment.end, 2),
+                     "texto": segment.text.strip()} for segment in generated if segment.text.strip()]
+        return segments, info.language, _model_label
     finally:
         _processing_lock.release()

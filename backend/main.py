@@ -14,6 +14,7 @@ from analysis_service import availability
 from audio_formats import ALLOWED_EXTENSIONS, FORMAT_ERROR, MAX_AUDIO_BYTES
 from meetings import router as meetings_router
 from jobs import router as jobs_router
+from live_sessions import router as live_router, manager as live_manager
 from jobs_service import recover_workspaces
 from schemas import ResultadoTranscripcion
 from runtime_revision import source_revision
@@ -34,8 +35,10 @@ async def lifespan(app):
     database.initialize()
     database.recover_interrupted()
     database.recover_jobs()
+    database.recover_live_sessions()
     recover_workspaces()
     yield
+    live_manager.shutdown()
 
 
 app = FastAPI(
@@ -58,6 +61,7 @@ app.add_middleware(
 
 app.include_router(meetings_router)
 app.include_router(jobs_router)
+app.include_router(live_router)
 
 
 @app.exception_handler(database.NotFoundError)
