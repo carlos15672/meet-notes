@@ -23,6 +23,7 @@ backend/data/*.sqlite3
 backend/data/*.sqlite3-shm
 backend/data/*.sqlite3-wal
 backend/data/trabajos-temporales/
+backend/data/capturas-en-vivo/
 
 # Respaldos y archivos auxiliares de desarrollo
 *.bak*

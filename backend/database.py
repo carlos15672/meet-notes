@@ -80,6 +80,16 @@ def initialize():
                 meeting_id TEXT, status TEXT NOT NULL, stage TEXT NOT NULL,
                 error TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS live_sessions (
+                id TEXT PRIMARY KEY, title TEXT NOT NULL, user_name TEXT NOT NULL,
+                status TEXT NOT NULL, duration REAL NOT NULL DEFAULT 0,
+                segments TEXT NOT NULL DEFAULT '[]', error TEXT NOT NULL DEFAULT '',
+                meeting_id TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS live_marks (
+                id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES live_sessions(id) ON DELETE CASCADE,
+                second REAL NOT NULL, created_at TEXT NOT NULL
+            );
         """)
 
 
@@ -316,3 +326,10 @@ def recover_jobs():
     with connection() as conn:
         conn.execute("""UPDATE jobs SET status='error',error=?,updated_at=? WHERE status='procesando'""",
                      ("El servidor se reinició. Puedes volver a intentar el procesamiento.",now()))
+
+
+def recover_live_sessions():
+    with connection() as conn:
+        conn.execute("""UPDATE live_sessions SET status='interrumpida',error=?,updated_at=?
+            WHERE status IN ('capturando','pausada','finalizando','analizando')""",
+            ("La aplicación se reinició. La captura guardada puede finalizarse.", now()))

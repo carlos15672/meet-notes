@@ -2,6 +2,61 @@
 
 Aplicación local para transcribir reuniones, generar resúmenes, encontrar tareas personales y guardar notas.
 
+## Captura en vivo (fases 1 a 4)
+
+En Windows se pueden capturar simultáneamente el sonido que sale por la computadora
+(WASAPI loopback) y el micrófono. Funciona con reuniones de Zoom, Meet, Teams u otra
+aplicación que reproduzca audio en esta computadora; la captura loopback incluye
+también otros sonidos del sistema. No requiere iniciar sesión en esas plataformas.
+La sección **En vivo** abre una ventana flotante nativa que permanece encima de
+Zoom, Meet, Teams u otras aplicaciones. El backend y el frontend deben estar
+iniciados antes de abrirla.
+
+1. Inicia el proyecto con `npm.cmd start` y entra en **En vivo**.
+2. Pulsa **Abrir ventana flotante**. Escribe el nombre con el que te mencionan,
+   agrega un título si quieres y elige la salida de audio y el micrófono.
+3. Pulsa **Iniciar escucha**. La ventana muestra la duración, el último fragmento
+   transcrito y los controles **Pausar**, **Marcar momento** y **Terminar y resumir**.
+4. Al terminar, espera a que indique **Resumen listo** y pulsa **Abrir resultados**.
+   También encontrarás la reunión en Historial. Si cierras la ventana durante una
+   captura, te pedirá terminarla primero.
+
+La ventana usa PySide6 y se comunica con la API local. Para abrirla desde la consola
+con el backend iniciado, ejecuta:
+
+~~~powershell
+.\.venv-backend\Scripts\python.exe scripts\floating_window.py
+~~~
+
+Los mismos controles están disponibles en `http://127.0.0.1:8000/docs`:
+
+1. Abre meet-notes con `npm.cmd start` y consulta `GET /api/en-vivo/dispositivos`.
+2. Usa `POST /api/en-vivo/sesiones` con JSON, por ejemplo
+   `{"userName":"Juan","title":"Revisión UX/UI"}`. Puedes añadir
+   `system_device_id` y `microphone_device_id` de la lista para elegir dispositivos.
+3. Consulta `GET /api/en-vivo/sesiones/{id}` para ver la duración y los segmentos
+   provisionales. Whisper analiza ventanas de unos 12 segundos mientras las dos pistas se
+   siguen grabando.
+4. Usa `POST /api/en-vivo/sesiones/{id}/pausar`, `/reanudar` o `/marcar`.
+5. Usa `POST /api/en-vivo/sesiones/{id}/finalizar`. Consulta el estado hasta que
+   sea `lista`; la reunión aparece en Historial y `meeting_id` permite consultarla por API. Se transcribe la mezcla
+   completa y después se ejecuta el análisis existente con Qwen.
+
+Se guardan pistas PCM a 16 kHz en `backend/data/capturas-en-vivo/{id}` mientras
+la reunión está en curso. Si el servidor se reinicia, consulta
+`GET /api/en-vivo/sesiones` para encontrar la sesión `interrumpida` y finalízala
+con la misma ruta. Tras guardar la transcripción final se borra el audio temporal.
+El límite de captura es de 45 minutos. Las marcas se guardan con su segundo de
+la reunión. Los nombres de los hablantes remotos todavía no se identifican;
+la separación por fuente conserva el micrófono y el audio del sistema para
+desarrollarla después. Inicia la captura únicamente durante una reunión en la
+que esté permitido grabar.
+
+Para verificar el flujo completo sin modificar tus reuniones, ejecuta
+`.\.venv-backend\Scripts\python.exe -u scripts\verify_live_pipeline.py`.
+Usa una base temporal y el audio de muestra, luego comprueba Whisper, Qwen y
+la eliminación del audio temporal.
+
 ## Inicio en Windows
 
 En esta computadora ya están instaladas las dependencias de Python y del frontend.

@@ -107,6 +107,18 @@ h3 { font-size: 1rem; font-weight: 650; }
 .help { font-size: .875rem; line-height: 1.6; }
 .badge { display: inline-flex; align-items: center; width: fit-content; padding: 6px 10px; border: 1px solid #94a3b8; border-radius: 999px; color: #334155; background: #f1f5f9; font-size: .75rem; font-weight: 650; }
 .card { background: var(--surface); border: 1px solid var(--divider); border-radius: var(--radius); box-shadow: 0 2px 5px #0f172a03; }
+.live-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: 24px; align-items: stretch; }
+.live-main, .live-guide, .live-recent { padding: 28px; }
+.live-main { display: grid; justify-items: start; gap: 18px; }
+.live-main > p { max-width: 58ch; }
+.live-guide { display: grid; gap: 20px; align-content: start; }
+.live-guide > div { display: flex; align-items: start; gap: 13px; }
+.live-guide > div > svg { color: var(--accent); flex: none; margin-top: 2px; }
+.live-guide h2 { margin-bottom: 6px; }
+.live-recent { display: grid; justify-items: start; gap: 12px; margin-top: 24px; }
+.live-recent > div { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.live-recent .badge { gap: 6px; }
+@media (max-width: 780px) { .live-grid { grid-template-columns: 1fr; } }
 
 /* ==========================================================================
    4. Controles, botones y formulario de carga de reunión

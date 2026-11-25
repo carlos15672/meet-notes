@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ChevronRight, HardDrive, History, LayoutList, NotebookPen, Plus } from "lucide-react";
+import { ArrowLeft, ChevronRight, HardDrive, History, LayoutList, NotebookPen, Plus, Radio } from "lucide-react";
 import { EmptyState } from "./components/UI.jsx";
 import NewMeeting from "./pages/NewMeeting.jsx";
 import Results from "./pages/Results.jsx";
 import MeetingHistory from "./pages/MeetingHistory.jsx";
+import LiveMeeting from "./pages/LiveMeeting.jsx";
 import { analyzeMeeting, createReviewedMeeting, getMeeting, deleteMeeting, updateTask, startJob, getJob, cancelJob, cancelAnalysis, resolveProposal } from "./services/api.js";
 
 import { createNoteSaver } from "./lib/noteSaving.js";
@@ -11,18 +12,20 @@ import { prepareTranscriptReview } from "./lib/transcriptReview.js";
 
 const navigation = [
   { path: "/nueva", label: "Nueva reunión", icon: Plus },
+  { path: "/en-vivo", label: "En vivo", icon: Radio },
   { path: "/resultados", label: "Resultados", icon: LayoutList },
   { path: "/historial", label: "Historial", icon: History },
 ];
 function readStorage(key) { try { return localStorage.getItem(key) || ""; } catch { return ""; } }
 function writeStorage(key, value) { try { localStorage.setItem(key, value); } catch { /* SQLite remains authoritative. */ } }
-function readRoute() { return window.location.hash.slice(1) || "/nueva"; }
+function meetingIdFromRoute() { return /^#\/resultados\/([0-9a-f-]{36})$/i.exec(window.location.hash)?.[1] || ""; }
+function readRoute() { const path = window.location.hash.slice(1) || "/nueva"; return path.startsWith("/resultados/") ? "/resultados" : path; }
 
 export default function App() {
   const [route, setRoute] = useState(readRoute);
   const [draft, setDraft] = useState(() => ({ name: readStorage("notas-user-name"), title: "", file: null }));
   const [meeting, setMeeting] = useState(null);
-  const [selectedId, setSelectedId] = useState(() => readStorage("notas-meeting-id"));
+  const [selectedId, setSelectedId] = useState(() => meetingIdFromRoute() || readStorage("notas-meeting-id"));
   const [processing, setProcessing] = useState({ status: "idle", error: "", phase: "" });
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,7 +58,11 @@ export default function App() {
   const current = navigation.find(item => item.path === route);
 
   useEffect(() => {
-    const update = () => setRoute(readRoute());
+    const update = () => {
+      const id = meetingIdFromRoute();
+      if (id) { setSelectedId(id); writeStorage("notas-meeting-id", id); setMeeting(old => old?.id === id ? old : null); }
+      setRoute(readRoute());
+    };
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, []);
@@ -243,6 +250,7 @@ export default function App() {
           {processing.status === "processing" && route !== "/nueva" && (route !== "/resultados" || meeting?.analysis_status !== "procesando") && <div className="integration-notice"><p role="status">{processing.phase}</p><button className="button secondary" onClick={cancelCurrentJob}>Cancelar procesamiento</button></div>}
           {processing.status === "error" && route !== "/nueva" && <p className="error-message" role="alert">{processing.error} <a href="#/nueva" className="recovery-link">Volver al formulario</a></p>}
           {route === "/nueva" && <NewMeeting draft={draft} onChange={updateDraft} onProcess={processMeeting} processing={processing} onCancel={cancelCurrentJob} />}
+          {route === "/en-vivo" && <LiveMeeting />}
           {route === "/resultados" && <Results key={selectedId || "empty"} meeting={meeting} loading={loading} loadError={loadError}
             onRefresh={refreshMeeting} onRetry={retryAnalysis} onReview={reviewTranscript} onCancel={cancelMeetingAnalysis} onResolve={resolveCandidate} saveStates={saveStates} noteDrafts={noteDrafts} onNoteChange={changeNote} onSaveTask={saveTask} />}
           {route === "/historial" && <MeetingHistory onOpen={openMeeting} onDelete={removeMeeting} version={historyVersion} />}

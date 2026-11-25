@@ -62,3 +62,5 @@ export const getJob = (id, signal) => request("/api/trabajos/" + encodeURICompon
 export const cancelJob = id => request("/api/trabajos/" + encodeURIComponent(id) + "/cancelar", { method: "POST" });
 export const cancelAnalysis = id => request("/api/reuniones/" + encodeURIComponent(id) + "/cancelar", { method: "POST" });
 export const resolveProposal = (meetingId, proposalId, data) => request("/api/reuniones/" + encodeURIComponent(meetingId) + "/propuestas/" + encodeURIComponent(proposalId), jsonOptions("PATCH", data));
+export const openFloatingWindow = () => request("/api/en-vivo/ventana", { method: "POST" });
+export const listLiveSessions = signal => request("/api/en-vivo/sesiones", { signal });
